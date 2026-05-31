@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meteorology Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+  </head>
+  <body>
+    <div class="weather-widget-container">
+      <h2 class="app-header">Current Conditions</h2>
+      <div class="input-wrapper">
+        <input type="text" placeholder="Search for a location..." spellcheck="false">
+        <button><img src="images/search.png" alt="Search"></button>
+      </div>
+      <div class="invalid-feedback">
+        <p>Location not found. Please try again.</p>
+      </div>
+      <div class="forecast-section">
+        <img src="images/rain.png" alt="Current condition" class="condition-img">
+        <h1 class="temperature-display">--°C</h1>
+        <h2 class="location-name">----</h2>
+        <div class="metrics-container">
+          <div class="metric-item">
+            <img src="images/humidity.png" alt="Moisture">
+            <div>
+              <p class="moisture-level">--%</p>
+              <p>Humidity</p>
+            </div>
+          </div>
+          <div class="metric-item">
+            <img src="images/wind.png" alt="Breeze">
+            <div>
+              <p class="breeze-speed">-- km/h</p>
+              <p>Wind</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script>
+      const clientToken = "8d7ff3e95153c5f8466997cf742b3924";
+      const endpointBase = "https://api.openweathermap.org/data/2.5/weather?units=metric&q=";
+      const queryInput = document.querySelector(".input-wrapper input");
+      const triggerBtn = document.querySelector(".input-wrapper button");
+      const conditionGraphic = document.querySelector(".condition-img");
+
+      async function fetchForecast(loc) {
+        try {
+          const apiRes = await fetch(endpointBase + loc + `&appid=${clientToken}`);
+          
+          if (!apiRes.ok) {
+            document.querySelector(".invalid-feedback").style.display = "block";
+            document.querySelector(".forecast-section").style.display = "none";
+            return;
+          }
+      
+          const payload = await apiRes.json(); 
+
+          document.querySelector(".location-name").textContent = payload.name;
+          document.querySelector(".temperature-display").textContent = Math.round(payload.main.temp) + "°C";
+          document.querySelector(".moisture-level").textContent = payload.main.humidity + "%";
+          document.querySelector(".breeze-speed").textContent = payload.wind.speed + " km/h";
+        
+          const mainCondition = payload.weather[0].main;
+          
+          switch(mainCondition) {
+            case "Clouds":
+              conditionGraphic.src = "images/clouds.png";
+              break;
+            case "Clear":
+              conditionGraphic.src = "images/clear.png";
+              break;
+            case "Rain":
+              conditionGraphic.src = "images/rain.png";
+              break;
+            case "Drizzle":
+              conditionGraphic.src = "images/drizzle.png";
+              break;
+            case "Mist":
+              conditionGraphic.src = "images/mist.png";
+              break;
+            case "Snow":
+              conditionGraphic.src = "images/snow.png";
+              break;
+            default:
+              conditionGraphic.src = "images/wind.png";
+          }
+
+          document.querySelector(".forecast-section").style.display = "block";
+          document.querySelector(".invalid-feedback").style.display = "none"; 
+        } catch (error) {
+          console.error("Failed to fetch weather data");
+        }
+      }
+
+      triggerBtn.addEventListener("click", () => {
+        if(queryInput.value.trim() !== "") {
+          fetchForecast(queryInput.value.trim());
+        }
+      });
+      
+      queryInput.addEventListener("keypress", (e) => {
+        if (e.key === "Enter" && queryInput.value.trim() !== "") {
+          fetchForecast(queryInput.value.trim());
+        }
+      });
+    </script>
+  </body>
+</html>
