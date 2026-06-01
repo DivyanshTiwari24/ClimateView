@@ -11,6 +11,7 @@ const iconByCondition = {
   Drizzle: "/images/drizzle.png",
   Mist: "/images/mist.png",
   Snow: "/images/snow.png",
+  Smoke:"images/smoke.png"
 };
 
 const initialWeather = {
